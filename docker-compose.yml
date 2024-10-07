@@ -1,0 +1,41 @@
+version: '3.4'
+
+services:
+  grpcserver:
+    container_name: grpcserver
+    image: ${DOCKER_REGISTRY-}grpcserver
+    build:
+      context: .
+      dockerfile: Server/Grpc.Server/Dockerfile
+    environment:
+      - ConnectionStrings__DbConnectionString=User ID=user;Password=password;Host=grpcdb;Port=5432;Database=grpc_db;Pooling=true;
+    ports:
+      - '5000:80'
+      - '443'
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - grpcdb
+    restart: always
+
+  grpc.client:
+    image: ${DOCKER_REGISTRY-}grpcclient
+    build:
+      context: .
+      dockerfile: Client/GrpcClient/Dockerfile
+    depends_on:
+      - grpcserver
+
+  grpcdb:
+    container_name: grpcdb
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: 'grpc_db'
+    expose:
+      - '5433'
+    ports:
+      - '5433:5432'

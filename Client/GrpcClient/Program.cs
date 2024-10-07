@@ -4,6 +4,9 @@ using Grpc.Net.Client;
 using GrpcClient;
 using Microsoft.Extensions.Configuration;
 
+await Task.Delay(15 * 1000);
+Console.WriteLine("Клиент начал свою работу");
+
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -15,8 +18,7 @@ var totalPackets = int.Parse(configuration["TotalPackets"]);
 var recordsInPacket = int.Parse(configuration["RecordsInPacket"]);
 var timeInterval = int.Parse(configuration["TimeInterval"]);
 
-
-using var channel = GrpcChannel.ForAddress($"{gRPCServerAddr}{gRPCServerPort}");
+ using var channel = GrpcChannel.ForAddress($"http://{gRPCServerAddr}:{gRPCServerPort}");
 
 var client = new Packeter.PacketerClient(channel);
 
@@ -42,5 +44,13 @@ for (int i = 0; i < totalPackets; i++)
     request.PacketData.AddRange(datas);
 
     var response = await client.ReceivePacketAsync(request);
+
+    if (response.Success)
+        Console.WriteLine($"Пакет с Id: {packet.PacketSeqNum} успешно отправлен и сохранен на сервере");
+    else
+        Console.WriteLine($"При обработке пакета с Id: {packet.PacketSeqNum} на сервере произошла ошибка: {response.ErrorMessaage}");
+
     await Task.Delay(timeInterval * 1000);
 }
+
+Console.WriteLine("Клиент завершил свою работу");

@@ -1,6 +1,7 @@
 ﻿using Grpc.Common.Abstractions;
 using Grpc.Common.Entities;
 using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grpc.Server.Services
 {
@@ -31,11 +32,17 @@ namespace Grpc.Server.Services
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
+            _logger.LogInformation($"Пакет с Id: {request.PacketSeqNum} принят");
+
             if (request.PacketData == null)
                 throw new ArgumentNullException(nameof(request.PacketData));
 
             if (request.PacketData.Count != request.NRecords)
-                return new ReceivePacketResponse { Success = false };
+                return new ReceivePacketResponse { Success = false, ErrorMessaage = "Колличество записей в масиве неравно свойству NRecords" };
+
+            var isPacketExist = await _dbContext.Datas.AnyAsync(x => x.PacketSeqNum == request.PacketSeqNum);
+            if (isPacketExist)
+                return new ReceivePacketResponse { Success = false, ErrorMessaage = $"Пакет с Id: {request.PacketSeqNum} уже добавлен в БД" };
 
             var datas = request.PacketData.Select((x, index) => new DataEntity
             {
@@ -52,6 +59,7 @@ namespace Grpc.Server.Services
             _dbContext.Datas.AddRange(datas);
             await _dbContext.SaveChangesAsync();
 
+            _logger.LogInformation($"Пакет с Id: {request.PacketSeqNum} успешно добавлен в БД");
             return new ReceivePacketResponse { Success = true };
         }
     }

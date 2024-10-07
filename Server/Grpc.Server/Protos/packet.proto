@@ -27,4 +27,5 @@ message PacketRecord {
 
 message ReceivePacketResponse {
     bool Success = 1;
+    string ErrorMessaage = 2;
 }

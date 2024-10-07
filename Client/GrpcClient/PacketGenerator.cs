@@ -35,8 +35,8 @@
 
         public static decimal GenerateRandomDecimal()
         {
-            Random random = new Random();
-            double doubleValue = random.NextDouble();
+            var random = new Random();
+            var doubleValue = random.NextDouble();
             return (decimal)(doubleValue * (double)100000000000m);
         }
     }

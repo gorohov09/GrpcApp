@@ -8,12 +8,10 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Server/Grpc.Server/Grpc.Server.csproj", "Server/Grpc.Server/"]
-COPY ["Server/Grpc.Common/Grpc.Common.csproj", "Server/Grpc.Common/"]
-COPY ["Server/Grpc.Server.Data.PostgreSql/Grpc.Server.Data.PostgreSql.csproj", "Server/Grpc.Server.Data.PostgreSql/"]
-RUN dotnet restore "./Server/Grpc.Server/./Grpc.Server.csproj"
+COPY ["Grpc.Server/Grpc.Server.csproj", "Grpc.Server/"]
+RUN dotnet restore "./Grpc.Server/./Grpc.Server.csproj"
 COPY . .
-WORKDIR "/src/Server/Grpc.Server"
+WORKDIR "/src/Grpc.Server"
 RUN dotnet build "./Grpc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
