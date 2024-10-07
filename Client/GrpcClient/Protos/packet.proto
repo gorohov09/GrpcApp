@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "Grpc.Client";
+
+import "google/protobuf/timestamp.proto";
+
+package packet;
+
+service Packeter {
+  rpc ReceivePacket (ReceivePacketRequest) returns (ReceivePacketResponse);
+}
+
+message ReceivePacketRequest {
+    google.protobuf.Timestamp PacketTimestamp = 1; 
+    int32 PacketSeqNum = 2;
+    int32 NRecords = 3;
+    repeated PacketRecord PacketData = 4;
+}
+
+message PacketRecord {
+    double Decimal1 = 1;
+    double Decimal2 = 2; 
+    double Decimal3 = 3; 
+    double Decimal4 = 4; 
+    google.protobuf.Timestamp Timestamp = 5;
+}
+
+message ReceivePacketResponse {
+    bool Success = 1;
+}
